@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bullshit-Bingo</title>
+    <style>
+        /* Grundlegende Box-Modell-Einstellungen für Konsistenz */
+        html {
+            box-sizing: border-box;
+        }
+        *, *::before, *::after {
+            box-sizing: inherit;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* align-items: center; /* DIESE ZEILE WIRD AUSKOMMENTIERT, da sie das Problem verursachen könnte */
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px; /* Abstand zwischen den Kacheln */
+            width: min(600px, 90vw); /* Board ist max. 600px oder 90% der Viewport-Breite */
+            margin: 0 auto; /* NEU: Zum horizontalen Zentrieren des Boards */
+            background-color: #ffffff;
+            border: 5px solid #34495e;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            padding: 8px; /* WICHTIG: Padding an den Gap-Wert anpassen */
+            box-sizing: border-box; /* Sicherstellen, dass Padding zur Gesamtbreite zählt */
+        }
+
+        .bingo-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Diese Zeile zentriert den Text innerhalb der Kachel! */
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: clamp(0.6em, 2.8vw, 1.2em); /* Angepasste responsive Schriftgröße */
+            text-align: center;
+            padding: 5px; /* Etwas weniger Padding für mehr Textraum in der Zelle */
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            user-select: none; /* Text nicht auswählbar machen */
+            box-sizing: border-box; /* Padding in die Breite/Höhe der Zelle einbeziehen */
+            aspect-ratio: 1 / 1; /* Jede Zelle ist explizit quadratisch */
+            word-break: break-word; /* Lange Wörter umbrechen */
+            line-height: 1.2; /* Zeilenhöhe anpassen für bessere Lesbarkeit bei mehreren Zeilen */
+        }
+
+        .bingo-cell:hover {
+            background-color: #e0e6e9;
+        }
+
+        .bingo-cell.marked {
+            background-color: #27ae60;
+            color: #ffffff;
+            border-color: #2ecc71;
+            transform: scale(0.98);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Bingo Popup Styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease;
+        }
+
+        .popup-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .popup-content {
+            background-color: #fff;
+            color: #333;
+            padding: 40px 60px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .popup-overlay.show .popup-content {
+            transform: scale(1);
+        }
+
+        .popup-content h2 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #27ae60;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .popup-content button {
+            background-color: #3498db;
+            padding: 10px 20px;
+            font-size: 1.2em;
+        }
+
+        /* Responsive Anpassungen (Media Queries) */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .bingo-board {
+                padding: 5px;
+                gap: 5px;
+            }
+            .bingo-cell {
+                font-size: clamp(0.55em, 3.2vw, 1.1em);
+                padding: 4px;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            .popup-content {
+                padding: 30px 40px;
+            }
+            .popup-content h2 {
+                font-size: 3em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .bingo-board {
+                padding: 4px;
+                gap: 4px;
+            }
+            .bingo-cell {
+                font-size: clamp(0.5em, 4vw, 1em);
+                padding: 3px;
+            }
+            button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            .popup-content {
+                padding: 20px 30px;
+            }
+            .popup-content h2 {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Bullshit-Bingo</h1>
+    <div class="bingo-board" id="bingoBoard">
+        </div>
+    <div class="controls">
+        <button id="newGameButton">Neues Spiel</button>
+    </div>
+
+    <div class="popup-overlay" id="bingoPopupOverlay">
+        <div class="popup-content">
+            <h2>BINGO!</h2>
+            <button id="closeBingoPopupBtn">Super!</button>
+        </div>
+    </div>
+
+    <script>
+        const bingoTerms = [
+            "Synergien heben", "Win-Win-Situation", "Low hanging fruit", "Out-of-the-box denken",
+            "Paradigmawechsel", "Holistische Betrachtung", "Push the envelope", "Best Practices",
+            "Im Zeitalter der Digitalisierung", "Deep Dive machen", "Roadmap definieren", "Agile Methodik",
+            "Transparenz schaffen", "Wertschöpfungskette", "User Journey", "Performance-Optimierung"
+        ];
+
+        const bingoBoard = document.getElementById('bingoBoard');
+        const newGameButton = document.getElementById('newGameButton');
+        const bingoPopupOverlay = document.getElementById('bingoPopupOverlay');
+        const closeBingoPopupBtn = document.getElementById('closeBingoPopupBtn');
+
+        let cells; // Wird die Nodelist der Zellen speichern
+        let isBingoAchieved = false; // Flag, um Mehrfach-Bingo-Popups zu verhindern
+
+        // IndexedDB-Variablen
+        const DB_NAME = 'BingoGameDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'gameState';
+        let db;
+
+        // Definition der Gewinnkombinationen (Indizes der Kacheln)
+        const winCombinations = [
+            // Horizontale Reihen
+            [0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15],
+            // Vertikale Reihen
+            [0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15],
+            // Diagonale Reihen
+            [0, 5, 10, 15], [3, 6, 9, 12]
+        ];
+
+        // IndexedDB Initialisierung
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    console.log("IndexedDB geöffnet.");
+                    resolve();
+                };
+
+                request.onerror = (event) => {
+                    console.error("Fehler beim Öffnen der IndexedDB:", event.target.errorCode);
+                    reject(event.target.errorCode);
+                };
+            });
+        }
+
+        // Zustand in IndexedDB speichern
+        function saveGameState() {
+            if (!db) {
+                console.warn("IndexedDB nicht bereit zum Speichern.");
+                return;
+            }
+            const markedStates = Array.from(cells).map(cell => cell.classList.contains('marked'));
+            const termOrder = Array.from(cells).map(cell => cell.textContent);
+
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+
+            store.put({ id: 'gameState', markedStates: markedStates, termOrder: termOrder, isBingoAchieved: isBingoAchieved });
+
+            transaction.oncomplete = () => {
+                // console.log("Spielstand gespeichert.");
+            };
+            transaction.onerror = (event) => {
+                console.error("Fehler beim Speichern des Spielstands:", event.target.errorCode);
+            };
+        }
+
+        // Zustand aus IndexedDB laden und anwenden
+        function loadGameState() {
+            if (!db) {
+                console.warn("IndexedDB nicht bereit zum Laden.");
+                return;
+            }
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get('gameState');
+
+            request.onsuccess = (event) => {
+                const savedState = event.target.result;
+                if (savedState && savedState.termOrder && savedState.markedStates) {
+                    // Begriffe in der gespeicherten Reihenfolge neu generieren
+                    bingoBoard.innerHTML = '';
+                    savedState.termOrder.forEach((term, index) => {
+                        const cell = document.createElement('div');
+                        cell.classList.add('bingo-cell');
+                        cell.textContent = term;
+                        cell.dataset.index = index;
+                        cell.addEventListener('click', () => {
+                            cell.classList.toggle('marked');
+                            checkForBingo();
+                            saveGameState(); // Zustand nach Klick speichern
+                        });
+                        if (savedState.markedStates[index]) {
+                            cell.classList.add('marked');
+                        }
+                        bingoBoard.appendChild(cell);
+                    });
+                    cells = bingoBoard.querySelectorAll('.bingo-cell'); // Aktualisiere die Zellen-Liste
+                    isBingoAchieved = savedState.isBingoAchieved;
+                    if (isBingoAchieved) {
+                        // Optional: Popup direkt anzeigen, wenn Bingo bereits erreicht war und geladen wurde
+                        // showBingoPopup(); // Kann man machen, wenn man möchte, dass es beim Laden direkt erscheint
+                    }
+                    console.log("Spielstand geladen.");
+                } else {
+                    console.log("Kein gespeicherter Spielstand gefunden, generiere neues Board.");
+                    generateBoardContent(); // Nur den Inhalt generieren, nicht den Zustand zurücksetzen
+                }
+            };
+            request.onerror = (event) => {
+                console.error("Fehler beim Laden des Spielstands:", event.target.errorCode);
+                generateBoardContent(); // Bei Fehler neues Board generieren
+            };
+        }
+
+        // Zustand in IndexedDB leeren
+        function clearGameState() {
+            if (!db) {
+                console.warn("IndexedDB nicht bereit zum Leeren.");
+                return;
+            }
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.clear(); // Löscht alle Einträge im Store
+            transaction.oncomplete = () => {
+                console.log("Spielstand in IndexedDB geleert.");
+            };
+            transaction.onerror = (event) => {
+                console.error("Fehler beim Leeren des Spielstands:", event.target.errorCode);
+            };
+        }
+
+        // Funktion zum Mischen eines Arrays (Fisher-Yates-Algorithmus)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Funktion zum Generieren des Bingo-Boards OHNE Laden/Speichern
+        function generateBoardContent() {
+            bingoBoard.innerHTML = ''; // Alte Kacheln entfernen
+            isBingoAchieved = false; // Bingo-Status zurücksetzen
+
+            const shuffledTerms = shuffleArray([...bingoTerms]); // Eine Kopie mischen
+
+            shuffledTerms.forEach((term, index) => {
+                const cell = document.createElement('div');
+                cell.classList.add('bingo-cell');
+                cell.textContent = term;
+                cell.dataset.index = index; // Index der Zelle speichern
+                cell.addEventListener('click', () => {
+                    cell.classList.toggle('marked'); // Kachel markieren/entmarkieren
+                    checkForBingo(); // Nach jeder Markierung auf Bingo prüfen
+                    saveGameState(); // Zustand nach Klick speichern
+                });
+                bingoBoard.appendChild(cell);
+            });
+            cells = bingoBoard.querySelectorAll('.bingo-cell'); // Aktualisiere die Zellen-Liste
+            saveGameState(); // Initialen, leeren Spielstand speichern
+        }
+
+
+        // Funktion zur Überprüfung auf Bingo
+        function checkForBingo() {
+            if (isBingoAchieved) return;
+
+            for (const combination of winCombinations) {
+                const isBingo = combination.every(index =>
+                    cells[index] && cells[index].classList.contains('marked')
+                );
+
+                if (isBingo) {
+                    showBingoPopup();
+                    isBingoAchieved = true;
+                    saveGameState(); // Bingo-Status speichern
+                    return;
+                }
+            }
+        }
+
+        // Funktion zum Anzeigen des Bingo-Popups
+        function showBingoPopup() {
+            bingoPopupOverlay.classList.add('show');
+        }
+
+        // Funktion zum Schließen des Bingo-Popups
+        function closeBingoPopup() {
+            bingoPopupOverlay.classList.remove('show');
+        }
+
+        // Initialisierung des Boards beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', () => {
+            initIndexedDB().then(() => {
+                loadGameState(); // Versuche, den Spielstand nach dem Öffnen der DB zu laden
+            });
+        });
+
+        // Event-Listener für den "Neues Spiel" Button
+        newGameButton.addEventListener('click', () => {
+            clearGameState(); // IndexedDB leeren
+            generateBoardContent(); // Neues Board generieren
+            closeBingoPopup(); // Popup schließen, falls offen
+        });
+
+        // Event-Listener für das Schließen des Popups
+        closeBingoPopupBtn.addEventListener('click', closeBingoPopup);
+        bingoPopupOverlay.addEventListener('click', (event) => {
+            if (event.target === bingoPopupOverlay) {
+                closeBingoPopup();
+            }
+        });
+    </script>
+</body>
+</html>
