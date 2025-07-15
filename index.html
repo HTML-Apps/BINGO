@@ -18,7 +18,6 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            /* align-items: center; /* DIESE ZEILE WIRD AUSKOMMENTIERT, da sie das Problem verursachen könnte */
             min-height: 100vh;
             background-color: #f0f2f5;
             color: #333;
@@ -36,10 +35,11 @@
 
         .bingo-board {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            /* KORREKTUR: minmax() stellt sicher, dass die Zellen korrekt schrumpfen */
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px; /* Abstand zwischen den Kacheln */
             width: min(600px, 90vw); /* Board ist max. 600px oder 90% der Viewport-Breite */
-            margin: 0 auto; /* NEU: Zum horizontalen Zentrieren des Boards */
+            margin: 0 auto; /* Zum horizontalen Zentrieren des Boards */
             background-color: #ffffff;
             border: 5px solid #34495e;
             border-radius: 12px;
