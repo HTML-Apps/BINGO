@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMORY-BINGO</title>
+    <title>Memory-Bingo</title>
     <style>
         /* Grundlegende Box-Modell-Einstellungen */
         html {
@@ -297,13 +297,18 @@
         }
 
         .memory-popup-overlay.show .memory-popup-content {
-            transform: scale(1);
+            transform: scale(0.9);
         }
 
         .memory-popup-content h2 {
             font-size: 3em;
             margin-bottom: 20px;
             color: #27ae60;
+        }
+
+        .memory-popup-content p {
+            font-size: 1.2em;
+            margin-bottom: 25px;
         }
 
         .memory-popup-content button {
@@ -471,7 +476,6 @@
     </div>
 
     <div id="memoryGameContainer" class="game-container">
-        <!-- Memory-Spielinhalt wird hier geladen -->
         <h1>BÜRO-MEMORY</h1>
         <div class="memory-board" id="memoryBoard"></div>
         <div class="memory-controls">
@@ -482,13 +486,12 @@
             <div class="memory-popup-content">
                 <h2>Gewonnen!</h2>
                 <p>Super gemacht! Du hast alle Paare gefunden.</p>
-                <button id="restartGameBtn">Neues Spiel</button>
+                <p id="memoryMovesCount">Züge: 0</p> <button id="restartGameBtn">Neues Spiel</button>
             </div>
         </div>
     </div>
 
     <div id="bingoGameContainer" class="game-container">
-        <!-- Bingo-Spielinhalt wird hier geladen -->
         <h1>BÜRO-(B)INGO</h1>
         <div class="bingo-board" id="bingoBoard"></div>
         <div class="bingo-controls">
@@ -518,6 +521,7 @@
         const winPopupOverlay = document.getElementById('winPopupOverlay');
         const restartGameBtn = document.getElementById('restartGameBtn');
         const newMemoryGameButton = document.getElementById('newMemoryGameButton'); // Neuer Button für Memory
+        const memoryMovesCountDisplay = document.getElementById('memoryMovesCount'); // New: Element to display moves
 
         // --- Bingo Spiel Elemente ---
         const bingoBoard = document.getElementById('bingoBoard');
@@ -544,6 +548,7 @@
         let firstCard, secondCard;
         let matchedPairs = 0;
         let memoryCardsState = []; // Array, um den Zustand der Memory-Karten zu speichern
+        let memoryMoves = 0; // New: Variable to count moves
 
         // --- Bingo Spiel Variablen ---
         const bingoTerms = [
@@ -610,6 +615,7 @@
                 matchedPairs: matchedPairs,
                 hasFlippedCard: hasFlippedCard,
                 lockBoard: lockBoard,
+                memoryMoves: memoryMoves // New: Save memory moves
                 // firstCard und secondCard können nicht direkt gespeichert werden,
                 // da es DOM-Elemente sind. Sie werden beim Laden neu zugewiesen.
             };
@@ -670,6 +676,7 @@
                     matchedPairs = savedState.matchedPairs;
                     hasFlippedCard = savedState.hasFlippedCard;
                     lockBoard = savedState.lockBoard;
+                    memoryMoves = savedState.memoryMoves || 0; // New: Load memory moves, default to 0 if not found
 
                     // firstCard und secondCard müssen neu zugewiesen werden,
                     // falls eine Karte im geflippten Zustand gespeichert wurde.
@@ -716,6 +723,7 @@
         function createMemoryBoard() {
             memoryBoard.innerHTML = ''; // Board leeren
             matchedPairs = 0;
+            memoryMoves = 0; // New: Reset moves for a new game
             resetMemoryBoard(); // Setze interne Variablen zurück
 
             const cardTerms = [...terms, ...terms];
@@ -742,7 +750,7 @@
             if (this === firstCard) return;
 
             this.classList.add('is-flipped');
-            saveMemoryGameState(); // Zustand nach dem Flippen speichern
+            // saveMemoryGameState(); // We save after both cards are flipped or after reset
 
             if (!hasFlippedCard) {
                 hasFlippedCard = true;
@@ -751,6 +759,7 @@
             }
 
             secondCard = this;
+            memoryMoves++; // New: Increment moves after two cards are flipped
             checkForMatch();
         }
 
@@ -770,6 +779,7 @@
             saveMemoryGameState(); // Zustand nach dem Matchen speichern
 
             if (matchedPairs === terms.length) {
+                memoryMovesCountDisplay.textContent = `Züge: ${memoryMoves}`; // New: Update moves display
                 setTimeout(() => winPopupOverlay.classList.add('show'), 1000);
             }
 
@@ -797,6 +807,7 @@
             clearMemoryGameState(); // Lösche den gespeicherten Memory-Spielstand
             setTimeout(() => {
                 resetMemoryBoard();
+                memoryMoves = 0; // Ensure moves are reset for new game
                 createMemoryBoard(); // Erstelle ein neues Memory-Board und speichere es
             }, 300);
         }
