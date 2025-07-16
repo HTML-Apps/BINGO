@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -35,7 +36,7 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
             background-color: #f0f2f5; /* Added for sticky background */
             padding: 20px 0; /* Added padding */
-            /*position: sticky; /* Added */
+            position: sticky; /* Added */
             top: 0; /* Added */
             z-index: 100; /* Added */
             width: 100%; /* Added */
@@ -470,7 +471,7 @@
 </head>
 <body>
 
-    <h1 id="mainTitle">Erfülle einen Auftrag</h1>
+    <h1 id="mainTitle">COS-DASHBOARD</h1>
 
     <div id="gameSelection" class="game-selection">
         <div class="game-card" id="memoryCard">
@@ -482,6 +483,11 @@
             <h2>BÜRO-(B)INGO</h2>
             <p>Markiere die gehörten Begriffe auf deinem Bingo-Feld und erziele ein BINGO!</p>
             <button onclick="loadGame('bingo')">Starten / Fortsetzen</button>
+        </div>
+        <div class="game-card" id="bingoCard">
+            <h2>COS-SOUNDBOARD</h2>
+            <p>Verlinkung zum COS-SOUNDBOARD</p>
+            <button onclick="window.open('https://html-apps.github.io/COS-Soundboard/', '_blank');">Website aufrufen</button>
         </div>
     </div>
 
@@ -515,6 +521,7 @@
             </div>
         </div>
     </div>
+
 
     <button id="backButton" class="back-button" onclick="goBackToSelection()">Zurück zur Auswahl</button>
 
