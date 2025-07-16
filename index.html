@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BÜRO-(B)INGO</title>
+    <title>MEMORY-BINGO</title>
     <style>
-        /* Grundlegende Box-Modell-Einstellungen für Konsistenz */
+        /* Grundlegende Box-Modell-Einstellungen */
         html {
             box-sizing: border-box;
         }
@@ -18,70 +18,20 @@
             /*display: flex;*/
             flex-direction: column;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
             background-color: #f0f2f5;
             color: #333;
             margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            /*padding: 20px;*/
+            text-align: center;
         }
 
         h1 {
             color: #2c3e50;
-            margin-bottom: 25px;
-            font-size: 2.5em;
-            text-align: center;
-        }
-
-        .bingo-board {
-            display: grid;
-            /* KORREKTUR: minmax() stellt sicher, dass die Zellen korrekt schrumpfen */
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 8px; /* Abstand zwischen den Kacheln */
-            width: min(600px, 90vw); /* Board ist max. 600px oder 90% der Viewport-Breite */
-            margin: 0 auto; /* Zum horizontalen Zentrieren des Boards */
-            background-color: #ffffff;
-            border: 5px solid #34495e;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            padding: 8px; /* WICHTIG: Padding an den Gap-Wert anpassen */
-            box-sizing: border-box; /* Sicherstellen, dass Padding zur Gesamtbreite zählt */
-        }
-
-        .bingo-cell {
-            display: flex;
-            justify-content: center;
-            align-items: center; /* Diese Zeile zentriert den Text innerhalb der Kachel! */
-            background-color: #ecf0f1;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            font-size: clamp(0.6em, 2.8vw, 1.2em); /* Angepasste responsive Schriftgröße */
-            text-align: center;
-            padding: 5px; /* Etwas weniger Padding für mehr Textraum in der Zelle */
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            user-select: none; /* Text nicht auswählbar machen */
-            box-sizing: border-box; /* Padding in die Breite/Höhe der Zelle einbeziehen */
-            aspect-ratio: 1 / 1; /* Jede Zelle ist explizit quadratisch */
-            word-break: break-word; /* Lange Wörter umbrechen */
-            line-height: 1.2; /* Zeilenhöhe anpassen für bessere Lesbarkeit bei mehreren Zeilen */
-        }
-
-        .bingo-cell:hover {
-            background-color: #e0e6e9;
-        }
-
-        .bingo-cell.marked {
-            background-color: #27ae60;
-            color: #ffffff;
-            border-color: #2ecc71;
-            transform: scale(0.98);
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .controls {
-            margin-top: 30px;
-            text-align: center;
+            margin-bottom: 40px;
+            font-size: 3em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         button {
@@ -95,20 +45,226 @@
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.1s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
         }
 
-        button:hover {
+        .game-selection {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-card {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 280px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .game-card h2 {
+            color: #3498db;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .game-card p {
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .game-card button {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-card button:hover {
             background-color: #2980b9;
             transform: translateY(-2px);
         }
 
-        button:active {
+        .game-card button:active {
             transform: translateY(0);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Bingo Popup Styles */
-        .popup-overlay {
+        /* Container für die Spiele */
+        .game-container {
+            display: none; /* Standardmäßig versteckt */
+            width: 100%;
+            max-width: 1000px; /* Maximale Breite für Spielinhalte */
+            margin-top: 20px;
+            padding: 0 10px;
+        }
+
+        .game-container.active {
+            display: block; /* Aktiviertes Spiel anzeigen */
+        }
+
+        .back-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: none; /* Standardmäßig versteckt */
+            max-width: 250px; /* Begrenzt die Breite des Buttons */
+            margin-left: auto; /* Zentriert den Button horizontal */
+            margin-right: auto; /* Zentriert den Button horizontal */
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background-color: #c0392b;
+        }
+
+        .back-button.active {
+            display: block;
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+                margin-bottom: 30px;
+            }
+            .game-selection {
+                /*flex-direction: column;*/
+                gap: 20px;
+            }
+            .game-card {
+                width: 90%;
+                max-width: 350px;
+                padding: 25px;
+            }
+            .game-card h2 {
+                font-size: 1.8em;
+            }
+            .game-card p {
+                font-size: 1em;
+            }
+            .game-card button {
+                padding: 10px 25px;
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+            .game-card {
+                padding: 20px;
+            }
+            .game-card h2 {
+                font-size: 1.5em;
+            }
+            .game-card p {
+                font-size: 0.9em;
+            }
+            .game-card button {
+                padding: 8px 20px;
+                font-size: 0.9em;
+                margin-top: 0px;
+            }
+        }
+
+        /* Styles for Memory Game (from original Memory.html) */
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 8px;
+            width: min(500px, 95vw);
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        .memory-card {
+            background-color: transparent;
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            overflow-wrap: break-word;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .card-face--front {
+            background-color: #3498db;
+            color: white;
+            font-size: clamp(1.5em, 5vw, 3em);
+            font-weight: bold;
+        }
+
+        .card-face--back {
+            background-color: #ecf0f1;
+            color: #333;
+            font-size: clamp(0.6em, 2vw, 1.1em);
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.is-matched {
+            pointer-events: none;
+            color:#27ae60;
+            /*opacity: 0.7;*/
+        }
+
+        .memory-card.is-matched .card-face--back {
+             background-color: #1e7040;
+             color: white;
+        }
+
+        /* Popup für das Spielende (Memory) */
+        .memory-popup-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -124,12 +280,150 @@
             transition: visibility 0s, opacity 0.3s ease;
         }
 
-        .popup-overlay.show {
+        .memory-popup-overlay.show {
             visibility: visible;
             opacity: 1;
         }
 
-        .popup-content {
+        .memory-popup-content {
+            background-color: #fff;
+            padding: 40px 60px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .memory-popup-overlay.show .memory-popup-content {
+            transform: scale(1);
+        }
+
+        .memory-popup-content h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #27ae60;
+        }
+
+        .memory-popup-content button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .memory-popup-content button:hover {
+            background-color: #2980b9;
+        }
+
+
+        /* Styles for Bingo Game (from original Bingo.html) */
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            width: min(600px, 90vw);
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 5px solid #34495e;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .bingo-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: clamp(0.6em, 2.8vw, 1.2em);
+            text-align: center;
+            padding: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            user-select: none;
+            box-sizing: border-box;
+            aspect-ratio: 1 / 1;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        .bingo-cell:hover {
+            background-color: #e0e6e9;
+        }
+
+        .bingo-cell.marked {
+            background-color: #27ae60;
+            color: #ffffff;
+            border-color: #2ecc71;
+            transform: scale(0.98);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .bingo-controls {
+            margin-top: 30px;
+            text-align: center;
+            /* Zusätzliche Zentrierung für den Button, falls er als Block-Element gerendert wird */
+            display: flex;
+            justify-content: center;
+            width: 100%; /* Sicherstellen, dass der Container die volle Breite einnimmt */
+        }
+
+        .bingo-controls button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 0px;
+        }
+
+        .bingo-controls button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .bingo-controls button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Bingo Popup Styles */
+        .bingo-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease;
+        }
+
+        .bingo-popup-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .bingo-popup-content {
             background-color: #fff;
             color: #333;
             padding: 40px 60px;
@@ -140,129 +434,144 @@
             transition: transform 0.3s ease;
         }
 
-        .popup-overlay.show .popup-content {
+        .bingo-popup-overlay.show .bingo-popup-content {
             transform: scale(1);
         }
 
-        .popup-content h2 {
+        .bingo-popup-content h2 {
             font-size: 4em;
             margin-bottom: 20px;
             color: #27ae60;
             text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
         }
 
-        .popup-content button {
+        .bingo-popup-content button {
             background-color: #3498db;
             padding: 10px 20px;
             font-size: 1.2em;
         }
-
-        /* Responsive Anpassungen (Media Queries) */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2em;
-            }
-            .bingo-board {
-                padding: 5px;
-                gap: 5px;
-            }
-            .bingo-cell {
-                font-size: clamp(0.55em, 3.2vw, 1.1em);
-                padding: 4px;
-            }
-            button {
-                padding: 10px 20px;
-                font-size: 1em;
-            }
-            .popup-content {
-                padding: 30px 40px;
-            }
-            .popup-content h2 {
-                font-size: 3em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            .bingo-board {
-                padding: 4px;
-                gap: 4px;
-            }
-            .bingo-cell {
-                font-size: clamp(0.5em, 4vw, 1em);
-                padding: 3px;
-            }
-            button {
-                padding: 8px 15px;
-                font-size: 0.9em;
-            }
-            .popup-content {
-                padding: 20px 30px;
-            }
-            .popup-content h2 {
-                font-size: 2.5em;
-            }
-        }
     </style>
 </head>
 <body>
-    <h1>BÜRO-(B)INGO</h1>
-    <div class="bingo-board" id="bingoBoard">
+
+    <h1 id="mainTitle">Wähle eine Aufgabe</h1>
+
+    <div id="gameSelection" class="game-selection">
+        <div class="game-card" id="memoryCard">
+            <h2>BÜRO-MEMORY</h2>
+            <p>Finde die passenden Paare und fordere dein Gedächtnis heraus.</p>
+            <button onclick="loadGame('memory')">Starten / Fortsetzen</button>
         </div>
-    <div class="controls">
-        <button id="newGameButton">Neues Spiel</button>
+        <div class="game-card" id="bingoCard">
+            <h2>BÜRO-(B)INGO</h2>
+            <p>Markiere die gehörten Begriffe auf deinem Bingo-Feld und erziele ein BINGO!</p>
+            <button onclick="loadGame('bingo')">Starten / Fortsetzen</button>
+        </div>
     </div>
 
-    <div class="popup-overlay" id="bingoPopupOverlay">
-        <div class="popup-content">
-            <h2>BINGO!</h2>
-            <button id="closeBingoPopupBtn">Super!</button>
+    <div id="memoryGameContainer" class="game-container">
+        <!-- Memory-Spielinhalt wird hier geladen -->
+        <h1>BÜRO-MEMORY</h1>
+        <div class="memory-board" id="memoryBoard"></div>
+        <div class="memory-controls">
+            <button id="newMemoryGameButton">Neues Spiel</button>
+        </div>
+
+        <div class="memory-popup-overlay" id="winPopupOverlay">
+            <div class="memory-popup-content">
+                <h2>Gewonnen!</h2>
+                <p>Super gemacht! Du hast alle Paare gefunden.</p>
+                <button id="restartGameBtn">Neues Spiel</button>
+            </div>
         </div>
     </div>
+
+    <div id="bingoGameContainer" class="game-container">
+        <!-- Bingo-Spielinhalt wird hier geladen -->
+        <h1>BÜRO-(B)INGO</h1>
+        <div class="bingo-board" id="bingoBoard"></div>
+        <div class="bingo-controls">
+            <button id="newGameButton">Neues Spiel</button>
+        </div>
+
+        <div class="bingo-popup-overlay" id="bingoPopupOverlay">
+            <div class="bingo-popup-content">
+                <h2>BINGO!</h2>
+                <button id="closeBingoPopupBtn">Super!</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="backButton" class="back-button" onclick="goBackToSelection()">Zurück zur Auswahl</button>
 
     <script>
+        // --- Globale Elemente ---
+        const mainTitle = document.getElementById('mainTitle');
+        const gameSelection = document.getElementById('gameSelection');
+        const memoryGameContainer = document.getElementById('memoryGameContainer');
+        const bingoGameContainer = document.getElementById('bingoGameContainer');
+        const backButton = document.getElementById('backButton');
+
+        // --- Memory Spiel Elemente ---
+        const memoryBoard = document.getElementById('memoryBoard');
+        const winPopupOverlay = document.getElementById('winPopupOverlay');
+        const restartGameBtn = document.getElementById('restartGameBtn');
+        const newMemoryGameButton = document.getElementById('newMemoryGameButton'); // Neuer Button für Memory
+
+        // --- Bingo Spiel Elemente ---
+        const bingoBoard = document.getElementById('bingoBoard');
+        const newGameButton = document.getElementById('newGameButton');
+        const bingoPopupOverlay = document.getElementById('bingoPopupOverlay');
+        const closeBingoPopupBtn = document.getElementById('closeBingoPopupBtn');
+
+        // --- IndexedDB Konstanten für Memory und Bingo ---
+        const DB_NAME = 'GameDB'; // Ein gemeinsamer DB-Name
+        const DB_VERSION = 1;
+        const MEMORY_STORE_NAME = 'memoryGameState';
+        const BINGO_STORE_NAME = 'bingoGameState';
+        let db;
+
+        // --- Memory Spiel Variablen ---
+        const terms = [
+            "Herrin", "Schnittstelle", "Oh Henni", "Rente",
+            "Gib mal ein", "BATCH-MAN", "Komm klar", "Für mich reichts noch",
+            "INGO", "CRIN-Ton", "COS-Q", "Guten Morgen ihr Mäuse",
+            "Bestände", "Boomer", "Wate, wate, wate", "INGO-Liste"
+        ];
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let matchedPairs = 0;
+        let memoryCardsState = []; // Array, um den Zustand der Memory-Karten zu speichern
+
+        // --- Bingo Spiel Variablen ---
         const bingoTerms = [
             "Herrin", "Gib mal ein", "COS-Q", "Für mich reichts noch",
             "Bestände", "INGO-Liste", "Schnitt-Stelle", "Komm klar",
             "BATCH-MAN", "Rente", "Guten Morgen ihr Mäuse", "Oh Henni",
             "Wate, wate, wate", "CRIN-Ton", "Boomer", "INGO"
         ];
+        let cells;
+        let isBingoAchieved = false;
 
-        const bingoBoard = document.getElementById('bingoBoard');
-        const newGameButton = document.getElementById('newGameButton');
-        const bingoPopupOverlay = document.getElementById('bingoPopupOverlay');
-        const closeBingoPopupBtn = document.getElementById('closeBingoPopupBtn');
-
-        let cells; // Wird die Nodelist der Zellen speichern
-        let isBingoAchieved = false; // Flag, um Mehrfach-Bingo-Popups zu verhindern
-
-        // IndexedDB-Variablen
-        const DB_NAME = 'BingoGameDB';
-        const DB_VERSION = 1;
-        const STORE_NAME = 'gameState';
-        let db;
-
-        // Definition der Gewinnkombinationen (Indizes der Kacheln)
         const winCombinations = [
-            // Horizontale Reihen
             [0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15],
-            // Vertikale Reihen
             [0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15],
-            // Diagonale Reihen
             [0, 5, 10, 15], [3, 6, 9, 12]
         ];
 
-        // IndexedDB Initialisierung
+        // --- IndexedDB Initialisierung ---
         function initIndexedDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
 
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
-                    if (!db.objectStoreNames.contains(STORE_NAME)) {
-                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains(MEMORY_STORE_NAME)) {
+                        db.createObjectStore(MEMORY_STORE_NAME, { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains(BINGO_STORE_NAME)) {
+                        db.createObjectStore(BINGO_STORE_NAME, { keyPath: 'id' });
                     }
                 };
 
@@ -279,42 +588,260 @@
             });
         }
 
-        // Zustand in IndexedDB speichern
-        function saveGameState() {
+        // --- Memory Spiel Funktionen ---
+        function saveMemoryGameState() {
             if (!db) {
-                console.warn("IndexedDB nicht bereit zum Speichern.");
+                console.error("IndexedDB ist nicht initialisiert. Kann Memory-Spielstand nicht speichern.");
+                return;
+            }
+
+            // Sammle den Zustand aller Karten
+            const cards = memoryBoard.querySelectorAll('.memory-card');
+            memoryCardsState = Array.from(cards).map(card => ({
+                term: card.dataset.term,
+                isFlipped: card.classList.contains('is-flipped'),
+                isMatched: card.classList.contains('is-matched')
+            }));
+
+            const stateToSave = {
+                id: 'memoryState',
+                cards: memoryCardsState,
+                matchedPairs: matchedPairs,
+                hasFlippedCard: hasFlippedCard,
+                lockBoard: lockBoard,
+                // firstCard und secondCard können nicht direkt gespeichert werden,
+                // da es DOM-Elemente sind. Sie werden beim Laden neu zugewiesen.
+            };
+
+            const transaction = db.transaction([MEMORY_STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(MEMORY_STORE_NAME);
+
+            store.put(stateToSave);
+
+            transaction.oncomplete = () => {
+                console.log("Memory-Spielstand erfolgreich gespeichert.");
+            };
+            transaction.onerror = (event) => {
+                console.error("Fehler beim Speichern des Memory-Spielstands:", event.target.error);
+            };
+        }
+
+        function loadMemoryGameState() {
+            if (!db) {
+                console.error("IndexedDB ist nicht initialisiert. Kann Memory-Spielstand nicht laden.");
+                createMemoryBoard(); // Neues Spiel starten, wenn DB nicht bereit
+                return;
+            }
+            console.log("Versuche Memory-Spielstand aus IndexedDB zu laden...");
+            const transaction = db.transaction([MEMORY_STORE_NAME], 'readonly');
+            const store = transaction.objectStore(MEMORY_STORE_NAME);
+            const request = store.get('memoryState');
+
+            request.onsuccess = (event) => {
+                const savedState = event.target.result;
+                if (savedState && savedState.cards) {
+                    console.log("Gespeicherter Memory-Spielstand gefunden und wird geladen.");
+                    memoryBoard.innerHTML = ''; // Board leeren
+
+                    savedState.cards.forEach(cardData => {
+                        const cardElement = document.createElement('div');
+                        cardElement.classList.add('memory-card');
+                        cardElement.dataset.term = cardData.term;
+
+                        cardElement.innerHTML = `
+                            <div class="card-face card-face--front">?</div>
+                            <div class="card-face card-face--back">${cardData.term}</div>
+                        `;
+
+                        if (cardData.isFlipped) {
+                            cardElement.classList.add('is-flipped');
+                        }
+                        if (cardData.isMatched) {
+                            cardElement.classList.add('is-matched');
+                            cardElement.removeEventListener('click', flipCard); // Keine Klicks auf gematchte Karten
+                        } else {
+                            cardElement.addEventListener('click', flipCard);
+                        }
+                        memoryBoard.appendChild(cardElement);
+                    });
+
+                    // Wiederherstellen des restlichen Spielzustands
+                    matchedPairs = savedState.matchedPairs;
+                    hasFlippedCard = savedState.hasFlippedCard;
+                    lockBoard = savedState.lockBoard;
+
+                    // firstCard und secondCard müssen neu zugewiesen werden,
+                    // falls eine Karte im geflippten Zustand gespeichert wurde.
+                    // Dies ist komplexer, da wir die Referenzen auf die DOM-Elemente benötigen.
+                    // Für den Moment ignorieren wir den Zustand von firstCard/secondCard beim Laden,
+                    // da ein "Neues Spiel" ohnehin den Zustand zurücksetzt.
+                    // Bei einem echten "Fortsetzen" müsste man hier die geflippten Karten identifizieren.
+                    console.log("Memory-Spielstand erfolgreich geladen.");
+                } else {
+                    console.log("Kein gültiger Memory-Spielstand in IndexedDB gefunden, generiere neues Board.");
+                    createMemoryBoard(); // Generiere neues Board
+                }
+            };
+            request.onerror = (event) => {
+                console.error("Fehler beim Laden des Memory-Spielstands aus IndexedDB:", event.target.error);
+                createMemoryBoard(); // Generiere neues Board bei Fehler
+            };
+        }
+
+        function clearMemoryGameState() {
+            if (!db) {
+                console.warn("IndexedDB nicht bereit zum Leeren des Memory-Spielstands.");
+                return;
+            }
+            const transaction = db.transaction([MEMORY_STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(MEMORY_STORE_NAME);
+            store.clear();
+            transaction.oncomplete = () => {
+                console.log("Memory-Spielstand in IndexedDB geleert.");
+            };
+            transaction.onerror = (event) => {
+                console.error("Fehler beim Leeren des Memory-Spielstands:", event.target.errorCode);
+            };
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createMemoryBoard() {
+            memoryBoard.innerHTML = ''; // Board leeren
+            matchedPairs = 0;
+            resetMemoryBoard(); // Setze interne Variablen zurück
+
+            const cardTerms = [...terms, ...terms];
+            const shuffledTerms = shuffle(cardTerms);
+
+            shuffledTerms.forEach(term => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('memory-card');
+                cardElement.dataset.term = term;
+
+                cardElement.innerHTML = `
+                    <div class="card-face card-face--front">?</div>
+                    <div class="card-face card-face--back">${term}</div>
+                `;
+
+                cardElement.addEventListener('click', flipCard);
+                memoryBoard.appendChild(cardElement);
+            });
+            saveMemoryGameState(); // Speichere den initialen Zustand des neuen Spiels
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('is-flipped');
+            saveMemoryGameState(); // Zustand nach dem Flippen speichern
+
+            if (!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            const isMatch = firstCard.dataset.term === secondCard.dataset.term;
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+
+            firstCard.classList.add('is-matched');
+            secondCard.classList.add('is-matched');
+
+            matchedPairs++;
+            saveMemoryGameState(); // Zustand nach dem Matchen speichern
+
+            if (matchedPairs === terms.length) {
+                setTimeout(() => winPopupOverlay.classList.add('show'), 1000);
+            }
+
+            resetMemoryBoard();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+
+            setTimeout(() => {
+                firstCard.classList.remove('is-flipped');
+                secondCard.classList.remove('is-flipped');
+                resetMemoryBoard();
+                saveMemoryGameState(); // Zustand nach dem Zurückflippen speichern
+            }, 1200);
+        }
+
+        function resetMemoryBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+
+        function newMemoryGame() {
+            winPopupOverlay.classList.remove('show');
+            clearMemoryGameState(); // Lösche den gespeicherten Memory-Spielstand
+            setTimeout(() => {
+                resetMemoryBoard();
+                createMemoryBoard(); // Erstelle ein neues Memory-Board und speichere es
+            }, 300);
+        }
+
+        // --- Bingo Spiel Funktionen ---
+        function saveBingoGameState() {
+            if (!db) {
+                console.error("IndexedDB ist nicht initialisiert. Kann Bingo-Spielstand nicht speichern.");
                 return;
             }
             const markedStates = Array.from(cells).map(cell => cell.classList.contains('marked'));
             const termOrder = Array.from(cells).map(cell => cell.textContent);
 
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
+            const stateToSave = { id: 'bingoState', markedStates: markedStates, termOrder: termOrder, isBingoAchieved: isBingoAchieved };
+            console.log("Versuche Bingo-Spielstand zu speichern:", stateToSave);
 
-            store.put({ id: 'gameState', markedStates: markedStates, termOrder: termOrder, isBingoAchieved: isBingoAchieved });
+            const transaction = db.transaction([BINGO_STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(BINGO_STORE_NAME);
+
+            store.put(stateToSave);
 
             transaction.oncomplete = () => {
-                // console.log("Spielstand gespeichert.");
+                console.log("Bingo-Spielstand erfolgreich gespeichert.");
             };
             transaction.onerror = (event) => {
-                console.error("Fehler beim Speichern des Spielstands:", event.target.errorCode);
+                console.error("Fehler beim Speichern des Bingo-Spielstands:", event.target.error);
             };
         }
 
-        // Zustand aus IndexedDB laden und anwenden
-        function loadGameState() {
+        function loadBingoGameState() {
             if (!db) {
-                console.warn("IndexedDB nicht bereit zum Laden.");
+                console.error("IndexedDB ist nicht initialisiert. Kann Bingo-Spielstand nicht laden.");
+                // Wenn DB nicht bereit ist, generiere ein neues Board, aber ohne zu speichern
+                generateBingoBoardContent(false); // false bedeutet, nicht speichern
                 return;
             }
-            const transaction = db.transaction([STORE_NAME], 'readonly');
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.get('gameState');
+            console.log("Versuche Bingo-Spielstand aus IndexedDB zu laden...");
+            const transaction = db.transaction([BINGO_STORE_NAME], 'readonly');
+            const store = transaction.objectStore(BINGO_STORE_NAME);
+            const request = store.get('bingoState');
 
             request.onsuccess = (event) => {
                 const savedState = event.target.result;
+                console.log("Geladener Bingo-Spielstand (raw):", savedState);
                 if (savedState && savedState.termOrder && savedState.markedStates) {
-                    // Begriffe in der gespeicherten Reihenfolge neu generieren
+                    console.log("Gespeicherter Bingo-Spielstand gefunden und wird geladen.");
                     bingoBoard.innerHTML = '';
                     savedState.termOrder.forEach((term, index) => {
                         const cell = document.createElement('div');
@@ -324,49 +851,47 @@
                         cell.addEventListener('click', () => {
                             cell.classList.toggle('marked');
                             checkForBingo();
-                            saveGameState(); // Zustand nach Klick speichern
+                            saveBingoGameState();
                         });
-                        if (savedState.markedStates[index]) {
+                        if (savedState.markedStates[index]) { // Apply marked state
                             cell.classList.add('marked');
                         }
                         bingoBoard.appendChild(cell);
                     });
-                    cells = bingoBoard.querySelectorAll('.bingo-cell'); // Aktualisiere die Zellen-Liste
-                    isBingoAchieved = savedState.isBingoAchieved;
+                    cells = bingoBoard.querySelectorAll('.bingo-cell');
+                    isBingoAchieved = savedState.isBingoAchieved; // Lade den gespeicherten Bingo-Status
+                    console.log("Spielstand erfolgreich geladen. isBingoAchieved:", isBingoAchieved);
+                    // Wenn Bingo bereits erreicht war, zeige das Popup direkt an
                     if (isBingoAchieved) {
-                        // Optional: Popup direkt anzeigen, wenn Bingo bereits erreicht war und geladen wurde
-                        // showBingoPopup(); // Kann man machen, wenn man möchte, dass es beim Laden direkt erscheint
+                        showBingoPopup();
                     }
-                    console.log("Spielstand geladen.");
                 } else {
-                    console.log("Kein gespeicherter Spielstand gefunden, generiere neues Board.");
-                    generateBoardContent(); // Nur den Inhalt generieren, nicht den Zustand zurücksetzen
+                    console.log("Kein gültiger Bingo-Spielstand in IndexedDB gefunden, generiere neues Board.");
+                    generateBingoBoardContent(); // Generiere neues Board und speichere es initial
                 }
             };
             request.onerror = (event) => {
-                console.error("Fehler beim Laden des Spielstands:", event.target.errorCode);
-                generateBoardContent(); // Bei Fehler neues Board generieren
+                console.error("Fehler beim Laden des Bingo-Spielstands aus IndexedDB:", event.target.error);
+                generateBingoBoardContent(); // Generiere neues Board bei Fehler
             };
         }
 
-        // Zustand in IndexedDB leeren
-        function clearGameState() {
+        function clearBingoGameState() {
             if (!db) {
-                console.warn("IndexedDB nicht bereit zum Leeren.");
+                console.warn("IndexedDB nicht bereit zum Leeren des Bingo-Spielstands.");
                 return;
             }
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            store.clear(); // Löscht alle Einträge im Store
+            const transaction = db.transaction([BINGO_STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(BINGO_STORE_NAME);
+            store.clear();
             transaction.oncomplete = () => {
-                console.log("Spielstand in IndexedDB geleert.");
+                console.log("Bingo-Spielstand in IndexedDB geleert.");
             };
             transaction.onerror = (event) => {
-                console.error("Fehler beim Leeren des Spielstands:", event.target.errorCode);
+                console.error("Fehler beim Leeren des Bingo-Spielstands:", event.target.errorCode);
             };
         }
 
-        // Funktion zum Mischen eines Arrays (Fisher-Yates-Algorithmus)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -375,78 +900,134 @@
             return array;
         }
 
-        // Funktion zum Generieren des Bingo-Boards OHNE Laden/Speichern
-        function generateBoardContent() {
-            bingoBoard.innerHTML = ''; // Alte Kacheln entfernen
-            isBingoAchieved = false; // Bingo-Status zurücksetzen
+        // `shouldSave` Parameter hinzugefügt, um zu steuern, ob der initial generierte Zustand gespeichert wird
+        function generateBingoBoardContent(shouldSave = true) {
+            bingoBoard.innerHTML = '';
+            isBingoAchieved = false; // Zurücksetzen des Bingo-Status für ein neues Spiel
 
-            const shuffledTerms = shuffleArray([...bingoTerms]); // Eine Kopie mischen
+            const shuffledTerms = shuffleArray([...bingoTerms]);
 
             shuffledTerms.forEach((term, index) => {
                 const cell = document.createElement('div');
                 cell.classList.add('bingo-cell');
                 cell.textContent = term;
-                cell.dataset.index = index; // Index der Zelle speichern
+                cell.dataset.index = index;
                 cell.addEventListener('click', () => {
-                    cell.classList.toggle('marked'); // Kachel markieren/entmarkieren
-                    checkForBingo(); // Nach jeder Markierung auf Bingo prüfen
-                    saveGameState(); // Zustand nach Klick speichern
+                    cell.classList.toggle('marked');
+                    checkForBingo();
+                    saveBingoGameState();
                 });
                 bingoBoard.appendChild(cell);
             });
-            cells = bingoBoard.querySelectorAll('.bingo-cell'); // Aktualisiere die Zellen-Liste
-            saveGameState(); // Initialen, leeren Spielstand speichern
-        }
-
-
-        // Funktion zur Überprüfung auf Bingo
-        function checkForBingo() {
-            if (isBingoAchieved) return;
-
-            for (const combination of winCombinations) {
-                const isBingo = combination.every(index =>
-                    cells[index] && cells[index].classList.contains('marked')
-                );
-
-                if (isBingo) {
-                    showBingoPopup();
-                    isBingoAchieved = true;
-                    saveGameState(); // Bingo-Status speichern
-                    return;
-                }
+            cells = bingoBoard.querySelectorAll('.bingo-cell');
+            if (shouldSave) {
+                saveBingoGameState(); // Speichere den initialen Zustand nur, wenn explizit gewünscht
+                console.log("Neues Bingo-Board generiert und initial gespeichert.");
+            } else {
+                console.log("Neues Bingo-Board generiert (nicht gespeichert).");
             }
         }
 
-        // Funktion zum Anzeigen des Bingo-Popups
+        function checkForBingo() {
+            console.log("checkForBingo aufgerufen. isBingoAchieved:", isBingoAchieved);
+            if (isBingoAchieved) {
+                console.log("Bingo bereits erreicht, beende Prüfung.");
+                return;
+            }
+
+            let bingoFound = false;
+            for (const combination of winCombinations) {
+                const isBingo = combination.every(index => {
+                    const cell = cells[index];
+                    const isMarked = cell && cell.classList.contains('marked');
+                    // console.log(`Zelle ${index} (${cell ? cell.textContent : 'N/A'}): Markiert? ${isMarked}`); // Kann für detailliertes Debugging aktiviert werden
+                    return isMarked;
+                });
+
+                if (isBingo) {
+                    console.log("BINGO erkannt! Popup wird angezeigt.");
+                    showBingoPopup();
+                    isBingoAchieved = true;
+                    saveBingoGameState();
+                    bingoFound = true; // Setzen, dass Bingo gefunden wurde
+                    break; // Beende Schleife nach dem ersten gefundenen Bingo
+                }
+            }
+
+            if (!bingoFound) {
+                console.log("Noch kein BINGO.");
+            }
+        }
+
         function showBingoPopup() {
+            console.log("Bingo-Popup wird angezeigt.");
             bingoPopupOverlay.classList.add('show');
         }
 
-        // Funktion zum Schließen des Bingo-Popups
         function closeBingoPopup() {
+            console.log("Bingo-Popup wird geschlossen.");
             bingoPopupOverlay.classList.remove('show');
         }
 
-        // Initialisierung des Boards beim Laden der Seite
-        document.addEventListener('DOMContentLoaded', () => {
-            initIndexedDB().then(() => {
-                loadGameState(); // Versuche, den Spielstand nach dem Öffnen der DB zu laden
+        // --- Hauptlogik für die Spielauswahl ---
+        function loadGame(gameType) {
+            // Alle Spielcontainer ausblenden
+            memoryGameContainer.classList.remove('active');
+            bingoGameContainer.classList.remove('active');
+
+            // Auswahlseite ausblenden
+            gameSelection.style.display = 'none';
+            mainTitle.style.display = 'none';
+            backButton.classList.add('active'); // Zurück-Button anzeigen
+
+            initIndexedDB().then(() => { // IndexedDB immer initialisieren
+                if (gameType === 'memory') {
+                    memoryGameContainer.classList.add('active');
+                    loadMemoryGameState(); // Versuche, den Memory-Spielstand zu laden
+                } else if (gameType === 'bingo') {
+                    bingoGameContainer.classList.add('active');
+                    loadBingoGameState(); // Versuche, den Bingo-Spielstand zu laden
+                }
             });
-        });
+        }
 
-        // Event-Listener für den "Neues Spiel" Button
-        newGameButton.addEventListener('click', () => {
-            clearGameState(); // IndexedDB leeren
-            generateBoardContent(); // Neues Board generieren
-            closeBingoPopup(); // Popup schließen, falls offen
-        });
+        function goBackToSelection() {
+            // Alle Spielcontainer ausblenden
+            memoryGameContainer.classList.remove('active');
+            bingoGameContainer.classList.remove('active');
 
-        // Event-Listener für das Schließen des Popups
-        closeBingoPopupBtn.addEventListener('click', closeBingoPopup);
-        bingoPopupOverlay.addEventListener('click', (event) => {
-            if (event.target === bingoPopupOverlay) {
+            // Popups schließen, falls offen
+            if (winPopupOverlay) winPopupOverlay.classList.remove('show');
+            if (bingoPopupOverlay) bingoPopupOverlay.classList.remove('show');
+
+            // Auswahlseite anzeigen
+            gameSelection.style.display = 'flex';
+            mainTitle.style.display = 'block';
+            backButton.classList.remove('active'); // Zurück-Button ausblenden
+
+            // Memory-Board wird bei jedem Start neu erstellt, daher hier kein explizites Reset nötig.
+            // Der Bingo-Status (isBingoAchieved) wird nur bei "Neues Spiel" oder beim Laden eines leeren Zustands zurückgesetzt.
+        }
+
+        // Initialisierung beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', () => {
+            // Event-Listener für die Spiel-Buttons (einmalig)
+            restartGameBtn.addEventListener('click', newMemoryGame); // Popup-Button
+            newMemoryGameButton.addEventListener('click', newMemoryGame); // Neuer Button im Memory-Spiel
+            newGameButton.addEventListener('click', () => {
+                clearBingoGameState(); // Löscht den Spielstand
+                generateBingoBoardContent(); // Generiert neues Board und speichert es
                 closeBingoPopup();
-            }
+            });
+            closeBingoPopupBtn.addEventListener('click', closeBingoPopup);
+            bingoPopupOverlay.addEventListener('click', (event) => {
+                if (event.target === bingoPopupOverlay) {
+                    closeBingoPopup();
+                }
+            });
+
+            // Sicherstellen, dass die Auswahlseite zuerst sichtbar ist
+            goBackToSelection();
         });
     </script>
 </body>
